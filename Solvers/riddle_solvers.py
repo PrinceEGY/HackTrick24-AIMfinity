@@ -70,7 +70,7 @@ def solve_cv_hard(input: tuple) -> int:
 
 
 def solve_ml_easy(input: pd.DataFrame) -> list:
-    data = pd.DataFrame(data)
+    data = pd.DataFrame(input)
 
     """
     This function takes a pandas DataFrame as input and returns a list as output.
@@ -752,7 +752,17 @@ def solve_problem_solving_hard(input: tuple) -> int:
     Returns:
     int: An integer representing the solution to the problem.
     """
-    return 0
+
+    x, y = input
+    dp = [[1 for _ in range(y)] for _ in range(x)]
+
+    for i in range(1, x):
+        for j in range(1, y):
+            dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+    # Another Solution
+    # nCr = x+y-2 C y-1
+
+    return dp[x - 1][y - 1]
 
 
 riddle_solvers = {
