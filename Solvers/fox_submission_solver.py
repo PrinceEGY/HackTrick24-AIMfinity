@@ -65,8 +65,7 @@ def get_riddle(team_id, riddle_id):
           will allow you to answer only the new riddle and you will have no access again to the old riddle.
     '''
 
-    BASE_URL = "http://127.0.0.1:5000/fox"
-    request = r.post(BASE_URL + "/get-riddle", json={"teamId": team_id, "riddleId": riddle_id})
+    request = r.post(api_base_url + "/get-riddle", json={"teamId": team_id, "riddleId": riddle_id})
     res = request.json()
     LogResponse(f"Riddle --> {riddle_id}:\n" + request.text)
     return res
@@ -129,7 +128,7 @@ def submit_fox_attempt(team_id):
     '''
 
     gamestarted = init_fox(team_id)
-    Message = np.array(gamestarted["msg"])
+    Message = gamestarted["msg"]
     Img = gamestarted["carrier_image"]
     Img = np.array(Img)
 
@@ -142,8 +141,8 @@ def submit_fox_attempt(team_id):
 
     generate_message_array(Message, Img)
     final = end_fox(team_id)
-    LogResponse("End Fox Game:\n", final)
     print(final)
+    print("Done!")
     pass
 
 
@@ -156,13 +155,14 @@ def LogResponse(response_text):
 
 submit_fox_attempt(team_id)
 
+
 # start = time.time()
 # img = imread('D:/HackTrick/Sol/HackTrick24/SteganoGAN/sample_example/encoded.png')
 # img = np.array(img)
 # print(solve_sec_medium(img))
 # end = time.time()
-
 # print(end-start)
+
 
 with open("LogsFile.txt", "a+") as f:
     for x in LogsFinal:
