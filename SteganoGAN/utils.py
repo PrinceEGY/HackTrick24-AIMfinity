@@ -1,9 +1,12 @@
+import sys
+
+sys.path.append("..")
 import torch
 from collections import Counter
 from reedsolo import RSCodec
 import zlib
-from decoders import DenseDecoder
-from critics import BasicCritic
+from SteganoGAN.decoders import DenseDecoder
+from SteganoGAN.critics import BasicCritic
 
 import torch
 from torch.optim import Adam
@@ -35,7 +38,7 @@ hidden_size = 32
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 LOAD_MODEL = True
-PRE_TRAINED_MODEL_PATH = 'image_models/DenseEncoder_DenseDecoder_0.042_2020-07-23_02_08_27.dat'
+PRE_TRAINED_MODEL_PATH = '../image_models/DenseEncoder_DenseDecoder_0.042_2020-07-23_02_08_27.dat'
 
 
 decoder = DenseDecoder(data_depth, hidden_size).to(device)

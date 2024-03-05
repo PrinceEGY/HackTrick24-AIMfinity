@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("..")
 import requests
 import numpy as np
 import time
@@ -6,6 +9,7 @@ import LSBSteg
 from LSBSteg import encode
 from riddle_solvers import *
 import requests as r
+
 
 api_base_url = "http://127.0.0.1:5000/fox"
 team_id = "TPRTO2z"
@@ -30,10 +34,10 @@ def generate_message_array(message, image_carrier):
         3. Decide what 3 chuncks you will send in each turn in the 3 channels & what is their entities (F,R,E)
         4. Encode each chunck in the image carrier
     '''
-    Lengths = [7, 6, 7]
-    chunks = [message[i:i + length] for i, length in enumerate(Lengths)]
+    #Lengths = [7, 6, 7]
+    chunks = [message[0:7],message[7:13],message[13:]]
     List_Of_Fake_Msgs = ["Fake1", "Fake2"]
-
+    print(chunks)
     # First
     msg1 = encode(image_carrier.copy(), List_Of_Fake_Msgs[0])
     msg2 = encode(image_carrier.copy(), chunks[0])
@@ -133,10 +137,10 @@ def submit_fox_attempt(team_id):
     Img = np.array(Img)
 
     for x in riddle_solvers.keys():
-        res = get_riddle(team_id, "sec_hard")
+        res = get_riddle(team_id, x)
         input = res["test_case"]
-        LogResponse(f"Riddle {x}:\n" + str(input))
         ans = riddle_solvers[x](input)
+        LogResponse(f"Riddle {x} Answer: "+str(ans))
         solve_riddle(team_id, ans)
 
     generate_message_array(Message, Img)
@@ -152,19 +156,18 @@ LogsFinal = []
 def LogResponse(response_text):
     LogsFinal.append(response_text + "\n----------------------------------\n")
 
+start = time.time()
 
 submit_fox_attempt(team_id)
 
-
-# start = time.time()
 # img = imread('D:/HackTrick/Sol/HackTrick24/SteganoGAN/sample_example/encoded.png')
 # img = np.array(img)
 # print(solve_sec_medium(img))
-# end = time.time()
-# print(end-start)
+end = time.time()
+print(end-start)
 
 
-with open("LogsFile.txt", "a+") as f:
+with open("LogsFile.txt", "w") as f:
     for x in LogsFinal:
         f.write(x)
 

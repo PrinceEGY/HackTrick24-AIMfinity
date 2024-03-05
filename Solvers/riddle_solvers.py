@@ -11,15 +11,15 @@ import pandas as pd
 import torch
 
 sys.path.insert(0, "SteganoGAN")
-from utils import *
+from SteganoGAN.utils import *
 import numpy as np
 import cv2
 from statsmodels.tsa.arima.model import ARIMA
 
 
 def solve_cv_easy(test_case: tuple) -> list:
-    shredded_image, shred_width = test_case
-    shredded_image = np.array(shredded_image)
+    #shredded_image, shred_width = test_case
+    #shredded_image = np.array(shredded_image)
     """
     This function takes a tuple as input and returns a list as output.
 
@@ -81,7 +81,6 @@ def solve_ml_easy(input: pd.DataFrame) -> list:
     Returns:
     list: A list of floats representing the output of the function.
     """
-
     data.fillna(data.mode(), inplace=True)
     model = ARIMA(data["visits"], order=(1, 1, 1))
 
@@ -90,7 +89,7 @@ def solve_ml_easy(input: pd.DataFrame) -> list:
 
     # Forecast the number of attacks for the next 50 days
     predictions = model_fit.forecast(steps=50).astype(int)
-    return [predictions]
+    return predictions.tolist()
 
 
 def solve_ml_medium(input: list) -> int:
@@ -107,10 +106,11 @@ def solve_ml_medium(input: list) -> int:
     with open("random_forest_model.pkl", "rb") as file:
         loaded_rf = pickle.load(file)
     predicted_class = loaded_rf.predict([input])
-    return predicted_class[0]
+    return int(predicted_class[0])
 
 
 def solve_sec_medium(input: torch.Tensor) -> str:
+    input = torch.tensor(input)
     """
     This function takes a torch.Tensor as input and returns a string as output.
 
@@ -120,7 +120,7 @@ def solve_sec_medium(input: torch.Tensor) -> str:
     Returns:
     str: A string representing the decoded message from the image.
     """
-    img = torch.tensor(input.transpose(2, 0, 1))[None, ...]
+    img = input.permute(2, 0, 1)[None, ...]
     decoded_message = decode(img)  # Decode the message using the decode function
     if decoded_message:
         return decoded_message
