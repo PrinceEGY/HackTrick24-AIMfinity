@@ -17,12 +17,15 @@ def dump_response(api_name, request: dict, response: Response):
 
     logs.append(f"Response Status Code: {response.status_code}: \n")
     logs.append("Response data: \n")
-    logs.append(str(response.json()))
+    try:
+        logs.append(str(response.json()))
+    except:
+        logs.append(str(response.text))
     logs.append("\n" + "*" * 50 + "\n\n")
 
 
-def save_logs():
-    with open("eagle_game_logs.txt", "w") as f:
+def save_logs(name):
+    with open(name, "w") as f:
         f.writelines(logs)
 
 

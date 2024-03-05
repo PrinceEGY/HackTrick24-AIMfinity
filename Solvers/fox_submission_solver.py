@@ -9,33 +9,35 @@ import LSBSteg
 from LSBSteg import encode
 from riddle_solvers import *
 import requests as r
+from helpers import dump_response, save_logs
 
 
-api_base_url = "http://127.0.0.1:5000/fox"
+api_base_url = "http://127.0.0.1:5000/fox"  # "http://3.70.97.142:5000/fox"
 team_id = "TPRTO2z"
 
 
 def init_fox(team_id):
-    '''
+    """
     In this fucntion you need to hit to the endpoint to start the game as a fox with your team id.
     If a sucessful response is returned, you will recive back the message that you can break into chunkcs
       and the carrier image that you will encode the chunk in it.
-    '''
-    req1 = r.post(api_base_url + "/start", json={"teamId": team_id})
-    LogResponse("Start Fox Game:\n" + req1.text)
-    return req1.json()
+    """
+    req = {"teamId": team_id}
+    response = r.post(api_base_url + "/start", json=req)
+    dump_response("INIT FOX", req, response)
+    return response.json()
 
 
 def generate_message_array(message, image_carrier):
-    '''
+    """
     In this function you will need to create your own startegy. That includes:
         1. How you are going to split the real message into chunkcs
         2. Include any fake chunks
         3. Decide what 3 chuncks you will send in each turn in the 3 channels & what is their entities (F,R,E)
         4. Encode each chunck in the image carrier
-    '''
-    #Lengths = [7, 6, 7]
-    chunks = [message[0:7],message[7:13],message[13:]]
+    """
+    # Lengths = [7, 6, 7]
+    chunks = [message[0:7], message[7:13], message[13:]]
     List_Of_Fake_Msgs = ["Fake1", "Fake2"]
     print(chunks)
     # First
@@ -43,23 +45,23 @@ def generate_message_array(message, image_carrier):
     msg2 = encode(image_carrier.copy(), chunks[0])
     msg3 = encode(image_carrier.copy(), List_Of_Fake_Msgs[1])
     data = [msg1.tolist(), msg2.tolist(), msg3.tolist()]
-    send_message(team_id, data, ['F', 'R', 'F'])
+    send_message(team_id, data, ["F", "R", "F"])
     # Second
     msg1 = encode(image_carrier.copy(), chunks[1])
     msg2 = encode(image_carrier.copy(), List_Of_Fake_Msgs[0])
     msg3 = encode(image_carrier.copy(), List_Of_Fake_Msgs[1])
     data = [msg1.tolist(), msg2.tolist(), msg3.tolist()]
-    send_message(team_id, data, ['R', 'F', 'F'])
+    send_message(team_id, data, ["R", "F", "F"])
     # Third
     msg1 = encode(image_carrier.copy(), List_Of_Fake_Msgs[1])
     msg2 = encode(image_carrier.copy(), List_Of_Fake_Msgs[0])
     msg3 = encode(image_carrier.copy(), chunks[2])
     data = [msg1.tolist(), msg2.tolist(), msg3.tolist()]
-    send_message(team_id, data, ['F', 'F', 'R'])
+    send_message(team_id, data, ["F", "F", "R"])
 
 
 def get_riddle(team_id, riddle_id):
-    '''
+    """
     In this function you will hit the api end point that requests the type of riddle you want to solve.
     use the riddle id to request the specific riddle.
     Note that:
@@ -67,52 +69,60 @@ def get_riddle(team_id, riddle_id):
         2. Each riddle has a timeout if you didnot reply with your answer it will be considered as a wrong answer.
         3. You cannot request several riddles at a time, so requesting a new riddle without answering the old one
           will allow you to answer only the new riddle and you will have no access again to the old riddle.
-    '''
-
-    request = r.post(api_base_url + "/get-riddle", json={"teamId": team_id, "riddleId": riddle_id})
-    res = request.json()
-    LogResponse(f"Riddle --> {riddle_id}:\n" + request.text)
-    return res
+    """
+    request = {"teamId": team_id, "riddleId": riddle_id}
+    resopnse = r.post(api_base_url + "/get-riddle", json=request)
+    dump_response("GET RIDDLE", request, resopnse)
+    return resopnse.json()
 
 
 def solve_riddle(team_id, solution):
-    '''
+    """
     In this function you will solve the riddle that you have requested.
     You will hit the API end point that submits your answer.
     Use te riddle_solvers.py to implement the logic of each riddle.
-    '''
-    re = r.post(api_base_url + "/solve-riddle", json={"teamId": team_id, "solution": solution})
-    LogResponse(f"Riddle Solves:\n" + re.text)
-    return re.json()
+    """
+    request = {"teamId": team_id, "solution": solution}
+    response = r.post(api_base_url + "/solve-riddle", json=request)
+    dump_response("SOLVE RIDDLE", request, response)
+    return response.json()
 
 
-def send_message(team_id, messages, message_entities=['F', 'E', 'R']):
-    '''
+def send_message(team_id, messages, message_entities=["F", "E", "R"]):
+    """
     Use this function to call the api end point to send one chunk of the message.
     You will need to send the message (images) in each of the 3 channels along with their entites.
     Refer to the API documentation to know more about what needs to be send in this api call.
-    '''
-    req1 = r.post(api_base_url + "/send-message",
-                  json={"teamId": team_id, "messages": messages, "message_entities": message_entities})
-    LogResponse("Send Message:\n" + req1.text)
-    return req1.text
+    """
+    request = {
+        "teamId": team_id,
+        "messages": messages,
+        "message_entities": message_entities,
+    }
+    reponse = r.post(
+        api_base_url + "/send-message",
+        json=request,
+    )
+    dump_response("SEND MESSAGE", request, reponse)
+    return reponse.text
 
 
 def end_fox(team_id):
-    '''
+    """
     Use this function to call the api end point of ending the fox game.
     Note that:
     1. Not calling this fucntion will cost you in the scoring function
     2. Calling it without sending all the real messages will also affect your scoring fucntion
       (Like failing to submit the entire message within the timelimit of the game).
-    '''
-    req1 = r.post(api_base_url + "/end-game", json={"teamId": team_id})
-    LogResponse("End Fox Game:\n" + req1.text)
-    return req1.text
+    """
+    request = {"teamId": team_id}
+    reponse = r.post(api_base_url + "/end-game", json=request)
+    dump_response("END FOX GAME", request, reponse)
+    return reponse.text
 
 
 def submit_fox_attempt(team_id):
-    '''
+    """
      Call this function to start playing as a fox.
      You should submit with your own team id that was sent to you in the email.
      Remeber you have up to 15 Submissions as a Fox In phase1.
@@ -129,18 +139,18 @@ def submit_fox_attempt(team_id):
             2.a. At most one real message is sent
             2.b. You cannot send 3 E(Empty) messages, there should be atleast R(Real)/F(Fake)
         3. Refer To the documentation to know more about the API handling
-    '''
-
+    """
+    # start = time.time()
     gamestarted = init_fox(team_id)
+    # print("--- %s seconds ---" % (time.time() - start))
+
     Message = gamestarted["msg"]
     Img = gamestarted["carrier_image"]
     Img = np.array(Img)
-
     for x in riddle_solvers.keys():
         res = get_riddle(team_id, x)
         input = res["test_case"]
         ans = riddle_solvers[x](input)
-        LogResponse(f"Riddle {x} Answer: "+str(ans))
         solve_riddle(team_id, ans)
 
     generate_message_array(Message, Img)
@@ -150,31 +160,13 @@ def submit_fox_attempt(team_id):
     pass
 
 
-LogsFinal = []
+img = np.array(imread("../SteganoGAN/sample_example/encoded.png"))
+solve_sec_medium(img)
 
-
-def LogResponse(response_text):
-    LogsFinal.append(response_text + "\n----------------------------------\n")
-
-
-
-#submit_fox_attempt(team_id)
-
-img = imread('D:/HackTrick/Sol/HackTrick24/SteganoGAN/sample_example/encoded.png')
-img = np.array(img)
-
+print("Starting attemp...")
 start = time.time()
-print(solve_sec_medium(img))
-end = time.time()
-print(end-start)
-
-start = time.time()
-print(solve_sec_medium(img))
-end = time.time()
-print(end-start)
+# submit_fox_attempt(team_id)
+print("--- %s seconds ---" % (time.time() - start))
 
 
-#with open("LogsFile.txt", "w") as f:
-#    for x in LogsFinal:
-#        f.write(x)
-
+save_logs("fox_logs.txt")

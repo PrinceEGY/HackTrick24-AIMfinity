@@ -13,13 +13,12 @@ import torch
 sys.path.insert(0, "SteganoGAN")
 from SteganoGAN.utils import *
 import numpy as np
-import cv2
 from statsmodels.tsa.arima.model import ARIMA
 
 
 def solve_cv_easy(test_case: tuple) -> list:
-    #shredded_image, shred_width = test_case
-    #shredded_image = np.array(shredded_image)
+    # shredded_image, shred_width = test_case
+    # shredded_image = np.array(shredded_image)
     """
     This function takes a tuple as input and returns a list as output.
 
