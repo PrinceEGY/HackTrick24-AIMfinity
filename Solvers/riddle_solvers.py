@@ -10,6 +10,10 @@ import sys
 import pandas as pd
 import torch
 
+import os
+
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+
 sys.path.insert(0, "SteganoGAN")
 from SteganoGAN.utils import *
 import numpy as np
@@ -109,7 +113,7 @@ def solve_ml_medium(input: list) -> int:
 
 
 def solve_sec_medium(input: torch.Tensor) -> str:
-    input = torch.tensor(input)
+    img = torch.tensor(input)
     """
     This function takes a torch.Tensor as input and returns a string as output.
 
@@ -119,7 +123,6 @@ def solve_sec_medium(input: torch.Tensor) -> str:
     Returns:
     str: A string representing the decoded message from the image.
     """
-    img = input.permute(2, 0, 1)[None, ...]
     decoded_message = decode(img)  # Decode the message using the decode function
     if decoded_message:
         return decoded_message
