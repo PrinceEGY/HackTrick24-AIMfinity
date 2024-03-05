@@ -22,6 +22,7 @@ def dump_response(api_name, request: dict, response: Response):
     except:
         logs.append(str(response.text))
     logs.append("\n" + "*" * 50 + "\n\n")
+    pass
 
 
 def save_logs(name):

@@ -15,8 +15,10 @@ class EagleSolution:
         self.model = load_model("spectro.keras")
         self.model.predict(np.zeros((1, 1998, 101, 1)))
         print("Model loaded.")
+
         self.api_base_url = "http://127.0.0.1:5000"
         self.team_id = "TPRTO2z"
+        self.LOGGING = True
 
     def remaining_attempts(self):
         """
@@ -45,7 +47,8 @@ class EagleSolution:
             json=request_data,
         )
         print("INIT REQUEST REAL TIME... ", time.time() - start)
-        dump_response("eagle_start", request_data, response)
+        if self.LOGGING:
+            dump_response("eagle_start", request_data, response)
         try:
             response_data = response.json()
         except:
@@ -67,7 +70,8 @@ class EagleSolution:
             response_data = response.json()
         except:
             response_data = response.text
-        dump_response("eagle_skip_msg", request_data, response)
+        if self.LOGGING:
+            dump_response("eagle_skip_msg", request_data, response)
         return response_data
 
     def request_msg(self, channel_id):
@@ -84,7 +88,8 @@ class EagleSolution:
             response_data = response.json()
         except:
             response_data = response.text
-        dump_response("eagle_request_msg", request_data, response)
+        if self.LOGGING:
+            dump_response("eagle_request_msg", request_data, response)
         return response_data
 
     def submit_msg(self, decoded_msg):
@@ -104,7 +109,8 @@ class EagleSolution:
             response_data = response.json()
         except:
             response_data = response.text
-        dump_response("eagle_submit_msg", request_data, response)
+        if self.LOGGING:
+            dump_response("eagle_submit_msg", request_data, response)
 
         return response_data
 
@@ -124,7 +130,8 @@ class EagleSolution:
             response_data = response.json()
         except:
             response_data = response.text
-        dump_response("eagle_end", request_data, response)
+        if self.LOGGING:
+            dump_response("eagle_end", request_data, response)
         print(response_data, response.status_code)
 
     def submit_eagle_attempt(self):
@@ -139,7 +146,7 @@ class EagleSolution:
         4. Submit your answer in case you listened on any channel
         5. End the Game
         """
-        print("Starting eagle attempt...")
+        start_attempt = time.time()
         start = time.time()
         response_data = self.init_eagle()
         print("init time: ", time.time() - start)
@@ -169,6 +176,7 @@ class EagleSolution:
                 print("submitting time: ", time.time() - start)
 
         self.end_eagle()
+        print("Total attempt time: ", time.time() - start_attempt)
 
 
 if __name__ == "__main__":
