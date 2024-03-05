@@ -35,12 +35,17 @@ def init_eagle(team_id):
     """
     endpoint = "/eagle/start"
     request_data = {"teamId": team_id}
+    start = time.time()
     response = requests.post(
         api_base_url + endpoint,
         json=request_data,
     )
+    print("INIT REQUEST REAL TIME... ", time.time() - start)
     dump_response("eagle_start", request_data, response)
-    response_data = response.json()
+    try:
+        response_data = response.json()
+    except:
+        response_data = response.text
     return response_data
 
 
@@ -55,7 +60,10 @@ def skip_msg(team_id):
         api_base_url + endpoint,
         json=request_data,
     )
-    response_data = response.json()
+    try:
+        response_data = response.json()
+    except:
+        response_data = response.text
     dump_response("eagle_skip_msg", request_data, response)
     return response_data
 
@@ -70,7 +78,10 @@ def request_msg(team_id, channel_id):
         api_base_url + endpoint,
         json=request_data,
     )
-    response_data = response.json()
+    try:
+        response_data = response.json()
+    except:
+        response_data = response.text
     dump_response("eagle_request_msg", request_data, response)
     return response_data
 
@@ -88,7 +99,10 @@ def submit_msg(team_id, decoded_msg):
         api_base_url + endpoint,
         json=request_data,
     )
-    response_data = response.json()
+    try:
+        response_data = response.json()
+    except:
+        response_data = response.text
     dump_response("eagle_submit_msg", request_data, response)
 
     return response_data
@@ -106,7 +120,10 @@ def end_eagle(team_id):
         api_base_url + endpoint,
         json=request_data,
     )
-    response_data = response.json()
+    try:
+        response_data = response.json()
+    except:
+        response_data = response.text
     dump_response("eagle_end", request_data, response)
     print(response_data, response.status_code)
 
@@ -123,11 +140,16 @@ def submit_eagle_attempt(team_id):
        4. Submit your answer in case you listened on any channel
        5. End the Game
     """
+    # first = True
     start = time.time()
     response_data = init_eagle(team_id)
     print("init time: ", time.time() - start)
     while response_data != "End of message reached":
-        footprints = response_data["footprint"]
+        try:
+            footprints = response_data["footprint"]
+        except:
+            footprints = response_data["nextFootprint"]
+
         start = time.time()
         channel_id = evaluate_footprints(footprints, model)
         print("evaluation time: ", time.time() - start)
@@ -151,6 +173,7 @@ def submit_eagle_attempt(team_id):
 
 
 if __name__ == "__main__":
+    first = True
     # Initialize the model before running
     print("Loading model...")
     model = load_model("spectro.keras")
@@ -159,4 +182,4 @@ if __name__ == "__main__":
     print("Model loaded")
     print("Starting eagle attempt...")
     submit_eagle_attempt(team_id)
-    save_logs()
+    save_logs("eagle_logs1.txt")

@@ -11,7 +11,7 @@ import time
 app = Flask(__name__)
 api = Api(app)
 
-TEAM_ID = "123"
+TEAM_ID = "TPRTO2z"
 MSG = "MOCK SERVER WORKING!"
 x_real, y_real, x_fake, y_fake = load_dataset("../footprints_dataset")
 COUNT = 0
@@ -20,8 +20,9 @@ start_time = 0
 
 class Start(Resource):
     def post(self):
+        global COUNT, start_time
+        COUNT = 0
         if request.json["teamId"] == TEAM_ID:
-            global start_time, COUNT
             start_time = time.time()
             response = {"footprint": {"1": empty, "2": real, "3": fake}}
 
@@ -47,7 +48,7 @@ class SkipImage(Resource):
             if COUNT == 5:
                 return "End of message reached"
 
-            response = {"footprint": {"1": empty, "2": real, "3": fake}}
+            response = {"nextFootprint": {"1": empty, "2": real, "3": fake}}
 
             COUNT += 1
             return response, 200
@@ -65,7 +66,7 @@ class SubmitMessage(Resource):
             if COUNT == 5:
                 return "End of message reached"
 
-            response = {"footprint": {"1": empty, "2": real, "3": fake}}
+            response = {"nextFootprint": {"1": empty, "2": real, "3": fake}}
 
             COUNT += 1
             return response, 200
@@ -76,7 +77,7 @@ class EndGame(Resource):
     def post(self):
         if request.json["teamId"] == TEAM_ID:
             print("--- %s seconds ---" % (time.time() - start_time))
-            return "Game ended successfully with a score of 10. New Highscore reached!”"
+            return "Game ended successfully with a score of 10. New Highscore reached!"
         return "Failure", 400
 
 
