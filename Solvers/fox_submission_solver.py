@@ -4,7 +4,6 @@ sys.path.append("..")
 import numpy as np
 import time
 from matplotlib.pyplot import imread
-import LSBSteg
 from LSBSteg import encode
 from riddle_solvers import *
 import requests as r
@@ -95,7 +94,7 @@ def solve_riddle(team_id, solution):
     request = {"teamId": team_id, "solution": solution}
     response = r.post(api_base_url + "/solve-riddle", json=request)
     dump_response("SOLVE RIDDLE", request, response)
-    return response.json()
+    print(response.text, response.status_code)
 
 
 def send_message(team_id, messages, message_entities=["F", "E", "R"]):
@@ -170,10 +169,12 @@ def submit_fox_attempt(team_id):
             start = time.time()
             print("Solving Riddle...", x)
             solve_riddle(team_id, ans)
-
             print("--- %s seconds ---" % (time.time() - start))
+
         except Exception as e:
-            print(e)
+            print(str(e))
+            print("EXPCETIION")
+            solve_riddle(team_id, "0")
 
     generate_message_array(Message, Img)
 

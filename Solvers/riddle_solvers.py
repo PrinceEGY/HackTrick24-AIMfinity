@@ -1,4 +1,6 @@
 # Add the necessary imports here
+import time
+import numpy as np
 import pandas as pd
 import torch
 from SteganoGAN.utils import *
@@ -7,9 +9,10 @@ import sys
 import pandas as pd
 import torch
 import google.generativeai as genai
-import re
+from word2number import w2n
 import os
 from sec_hard_solver import DES_encrypt
+from PIL import Image
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
@@ -58,8 +61,9 @@ def solve_cv_medium(input: tuple) -> list:
 
 
 def solve_cv_hard(input: tuple) -> int:
-    # extracted_question, image = input
-    # image = np.array(image)
+    extracted_question, image = input
+    image = np.array(image, dtype=np.uint8)
+    image = Image.fromarray(image)
     """
     This function takes a tuple as input and returns an integer as output.
 
@@ -71,7 +75,37 @@ def solve_cv_hard(input: tuple) -> int:
     Returns:
     int: An integer representing the answer to the question about the image.
     """
-    return 0
+    start = time.time()
+    response = vision_model.generate_content([extracted_question, image], stream=True)
+    response.resolve()
+    print("Time taken to get response from model: ", time.time() - start)
+    print(response.text)
+
+    ans = ""
+    res = response.text
+    print(res)
+    words_list = res.split()
+    for word in words_list:
+        word = (
+            word.replace(".", "")
+            .replace(",", "")
+            .replace("?", "")
+            .replace("!", "")
+            .replace(":", "")
+            .replace(";", "")
+        )
+        try:
+            w2n.word_to_num(word)
+            ans += word + " "
+            print(word, w2n.word_to_num(str(word)), "ans=", ans)
+
+        except Exception as e:
+            print(e)
+
+    ans = w2n.word_to_num(ans)
+    print(f"ans={ans}")
+
+    return ans
 
 
 def solve_ml_easy(input: pd.DataFrame) -> list:
@@ -221,8 +255,8 @@ def solve_problem_solving_hard(input: tuple) -> int:
 
 
 riddle_solvers = {
-    "cv_easy": solve_cv_easy,
-    "cv_medium": solve_cv_medium,
+    # "cv_easy": solve_cv_easy,
+    # "cv_medium": solve_cv_medium,
     "cv_hard": solve_cv_hard,
     "ml_easy": solve_ml_easy,
     "ml_medium": solve_ml_medium,

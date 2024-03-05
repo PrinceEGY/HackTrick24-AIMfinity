@@ -469,17 +469,20 @@ data = pd.read_csv(
 )
 # data2 = pd.read_csv("D:\HackTrick\Repo\HackTrick-AIMfinity\Riddles\ml_medium_dataset\MlMediumTrainingData.csv")
 import json
+from PIL import Image
 
 with open("img.txt", "r") as f:
     img = f.read()
     img = json.loads(img)
+
+cv_hard = Image.open(r"C:\dev\HackTrick-AIMfinity\Solvers\fox_logs\cv_hard1.jpg")
 
 dict = {
     "sec_medium_stegano": img,
     "sec_hard": ("266200199BBCDFF1", "0123456789ABCDEF"),
     "cv_easy": "cv_easyTestCase",
     "cv_medium": "cv_mediumTestCase",
-    "cv_hard": "cv_hardTestCase",
+    "cv_hard": ["How many people are wearing glasses?", np.array(cv_hard).tolist()],
     "ml_easy": {
         "timestamp": data["timestamp"].tolist(),
         "visits": data["visits"].tolist(),
