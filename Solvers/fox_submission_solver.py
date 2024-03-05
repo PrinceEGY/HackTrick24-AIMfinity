@@ -196,4 +196,4 @@ submit_fox_attempt(team_id)
 print("--- %s seconds ---" % (time.time() - start))
 
 
-save_logs("fox_logs.txt")
+# save_logs("fox_logs.txt")
