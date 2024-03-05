@@ -156,18 +156,25 @@ LogsFinal = []
 def LogResponse(response_text):
     LogsFinal.append(response_text + "\n----------------------------------\n")
 
+
+
+#submit_fox_attempt(team_id)
+
+img = imread('D:/HackTrick/Sol/HackTrick24/SteganoGAN/sample_example/encoded.png')
+img = np.array(img)
+
 start = time.time()
+print(solve_sec_medium(img))
+end = time.time()
+print(end-start)
 
-submit_fox_attempt(team_id)
-
-# img = imread('D:/HackTrick/Sol/HackTrick24/SteganoGAN/sample_example/encoded.png')
-# img = np.array(img)
-# print(solve_sec_medium(img))
+start = time.time()
+print(solve_sec_medium(img))
 end = time.time()
 print(end-start)
 
 
-with open("LogsFile.txt", "w") as f:
-    for x in LogsFinal:
-        f.write(x)
+#with open("LogsFile.txt", "w") as f:
+#    for x in LogsFinal:
+#        f.write(x)
 
