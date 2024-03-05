@@ -1,7 +1,6 @@
 import sys
 
 sys.path.append("..")
-import requests
 import numpy as np
 import time
 from matplotlib.pyplot import imread
@@ -10,7 +9,7 @@ from LSBSteg import encode
 from riddle_solvers import *
 import requests as r
 from helpers import dump_response, save_logs
-
+import json
 
 api_base_url = "http://127.0.0.1:5000/fox"  # "http://3.70.97.142:5000/fox"
 team_id = "TPRTO2z"
@@ -40,24 +39,35 @@ def generate_message_array(message, image_carrier):
     chunks = [message[0:7], message[7:13], message[13:]]
     List_Of_Fake_Msgs = ["Fake1", "Fake2"]
     print(chunks)
+    print("Sending chunk 1...")
+    start = time.time()
     # First
     msg1 = encode(image_carrier.copy(), List_Of_Fake_Msgs[0])
     msg2 = encode(image_carrier.copy(), chunks[0])
     msg3 = encode(image_carrier.copy(), List_Of_Fake_Msgs[1])
     data = [msg1.tolist(), msg2.tolist(), msg3.tolist()]
     send_message(team_id, data, ["F", "R", "F"])
+    print("--- %s seconds ---" % (time.time() - start))
+
+    print("Sending chunk 2...")
+    start = time.time()
     # Second
     msg1 = encode(image_carrier.copy(), chunks[1])
     msg2 = encode(image_carrier.copy(), List_Of_Fake_Msgs[0])
     msg3 = encode(image_carrier.copy(), List_Of_Fake_Msgs[1])
     data = [msg1.tolist(), msg2.tolist(), msg3.tolist()]
     send_message(team_id, data, ["R", "F", "F"])
+    print("--- %s seconds ---" % (time.time() - start))
+
+    print("Sending chunk 2...")
+    start = time.time()
     # Third
     msg1 = encode(image_carrier.copy(), List_Of_Fake_Msgs[1])
     msg2 = encode(image_carrier.copy(), List_Of_Fake_Msgs[0])
     msg3 = encode(image_carrier.copy(), chunks[2])
     data = [msg1.tolist(), msg2.tolist(), msg3.tolist()]
     send_message(team_id, data, ["F", "F", "R"])
+    print("--- %s seconds ---" % (time.time() - start))
 
 
 def get_riddle(team_id, riddle_id):
@@ -140,32 +150,49 @@ def submit_fox_attempt(team_id):
             2.b. You cannot send 3 E(Empty) messages, there should be atleast R(Real)/F(Fake)
         3. Refer To the documentation to know more about the API handling
     """
-    # start = time.time()
+    print("Starting Fox Game...")
+    start = time.time()
     gamestarted = init_fox(team_id)
-    # print("--- %s seconds ---" % (time.time() - start))
+    print("--- %s seconds ---" % (time.time() - start))
 
     Message = gamestarted["msg"]
     Img = gamestarted["carrier_image"]
     Img = np.array(Img)
     for x in riddle_solvers.keys():
-        res = get_riddle(team_id, x)
-        input = res["test_case"]
-        ans = riddle_solvers[x](input)
-        solve_riddle(team_id, ans)
+        try:
+            print("Getting Riddle...", x)
+            start = time.time()
+            res = get_riddle(team_id, x)
+            print("--- %s seconds ---" % (time.time() - start))
+            input = res["test_case"]
+            ans = riddle_solvers[x](input)
+
+            start = time.time()
+            print("Solving Riddle...", x)
+            solve_riddle(team_id, ans)
+
+            print("--- %s seconds ---" % (time.time() - start))
+        except Exception as e:
+            print(e)
 
     generate_message_array(Message, Img)
+
+    start = time.time()
+    print("Ending game...")
     final = end_fox(team_id)
+    print("--- %s seconds ---" % (time.time() - start))
     print(final)
     print("Done!")
-    pass
 
 
-img = np.array(imread("../SteganoGAN/sample_example/encoded.png"))
+with open("C:\dev\HackTrick-AIMfinity\SteganoGAN\img.txt", "r") as f:
+    img = f.read()
+    img = json.loads(img)
 solve_sec_medium(img)
 
 print("Starting attemp...")
 start = time.time()
-# submit_fox_attempt(team_id)
+submit_fox_attempt(team_id)
 print("--- %s seconds ---" % (time.time() - start))
 
 
