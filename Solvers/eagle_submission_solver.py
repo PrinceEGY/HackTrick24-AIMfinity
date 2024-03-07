@@ -10,7 +10,7 @@ import time
 
 
 class EagleSolution:
-    def __init__(self) -> None:
+    def __init__(self, LOGGING=True) -> None:
         print("Loading model...")
         self.model = load_model("spectro.keras")
         self.model.predict(np.zeros((1, 1998, 101, 1)))
@@ -18,7 +18,7 @@ class EagleSolution:
 
         self.api_base_url = "http://127.0.0.1:5000"
         self.team_id = "TPRTO2z"
-        self.LOGGING = True
+        self.LOGGING = LOGGING
 
     def remaining_attempts(self):
         """
@@ -180,6 +180,6 @@ class EagleSolution:
 
 
 if __name__ == "__main__":
-    eagle = EagleSolution()
+    eagle = EagleSolution(LOGGING=True)
     eagle.submit_eagle_attempt()
     # save_logs("eagle_logs1.txt")
