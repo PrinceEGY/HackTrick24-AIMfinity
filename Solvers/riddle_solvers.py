@@ -13,6 +13,9 @@ from word2number import w2n
 import os
 from sec_hard_solver import DES_encrypt
 from PIL import Image
+from cv_easy_solver import reorder_shards
+from cv_med_solver import find_and_fill
+from sklearn.cluster import DBSCAN
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
@@ -26,8 +29,6 @@ vision_model = genai.GenerativeModel("gemini-pro-vision")
 
 
 def solve_cv_easy(test_case: tuple) -> list:
-    # shredded_image, shred_width = test_case
-    # shredded_image = np.array(shredded_image)
     """
     This function takes a tuple as input and returns a list as output.
 
@@ -39,13 +40,13 @@ def solve_cv_easy(test_case: tuple) -> list:
     Returns:
     list: A list of integers representing the order of shreds. When combined in this order, it builds the whole image.
     """
-    return []
+    shredded_image, shred_width = test_case
+    shredded_image = np.array(shredded_image, dtype=np.uint8)
+    order, batches = reorder_shards(shredded_image)
+    return order
 
 
 def solve_cv_medium(input: tuple) -> list:
-    # combined_image_array , patch_image_array = input
-    # combined_image = np.array(combined_image_array,dtype=np.uint8)
-    # patch_image = np.array(patch_image_array,dtype=np.uint8)
     """
     This function takes a tuple as input and returns a list as output.
 
@@ -57,7 +58,17 @@ def solve_cv_medium(input: tuple) -> list:
     Returns:
     list: A list representing the real image.
     """
-    return []
+    combined_image_array, patch_image_array = input
+    combined_image = np.array(combined_image_array, dtype=np.uint8)
+    patch_image = np.array(patch_image_array, dtype=np.uint8)
+    res = find_and_fill(
+        combined_image,
+        patch_image,
+        threshold=0.4,
+        auto_scale=(0.05, 0.5, 0.01),
+        fill_size=10,
+    )
+    return res
 
 
 def solve_cv_hard(input: tuple) -> int:
@@ -141,11 +152,12 @@ def solve_ml_medium(input: list) -> int:
     Returns:
     int: An integer representing the output of the function.
     """
-
-    with open("random_forest_model.pkl", "rb") as file:
-        loaded_rf = pickle.load(file)
-    predicted_class = loaded_rf.predict([input])
-    return int(predicted_class[0])
+    df = pd.read_csv("MlMediumTrainingData.csv")
+    df.drop("class", axis=1, inplace=True)
+    df.loc[len(df)] = input
+    cluster = DBSCAN(eps=2, min_samples=5, leaf_size=112)
+    cluster.fit(df)
+    return int(cluster.labels_[-1])
 
 
 def solve_sec_medium(input: torch.Tensor) -> str:
@@ -255,8 +267,8 @@ def solve_problem_solving_hard(input: tuple) -> int:
 
 
 riddle_solvers = {
-    # "cv_easy": solve_cv_easy,
-    # "cv_medium": solve_cv_medium,
+    "cv_easy": solve_cv_easy,
+    "cv_medium": solve_cv_medium,
     "cv_hard": solve_cv_hard,
     "ml_easy": solve_ml_easy,
     "ml_medium": solve_ml_medium,
