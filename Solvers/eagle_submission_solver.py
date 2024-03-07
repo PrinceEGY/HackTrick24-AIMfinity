@@ -52,6 +52,7 @@ class EagleSolution:
         try:
             response_data = response.json()
         except:
+            print(response.text)
             response_data = response.text
         return response_data
 

@@ -48,6 +48,7 @@ class FoxSolution:
         response = r.post(self.api_base_url + "/start", json=req)
         if self.LOGGING:
             dump_response("INIT FOX", req, response)
+        print(response.text, response.status_code)
         return response.json()
 
     def generate_message_array(self, message, image_carrier):
