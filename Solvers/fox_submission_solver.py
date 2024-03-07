@@ -117,7 +117,9 @@ class FoxSolution:
         Use te riddle_solvers.py to implement the logic of each riddle.
         """
         request = {"teamId": self.team_id, "solution": solution}
+        start = time.time()
         response = r.post(self.api_base_url + "/solve-riddle", json=request)
+        print("--- Server response time: %s seconds ---" % (time.time() - start))
         if self.LOGGING:
             dump_response("SOLVE RIDDLE", request, response)
         print(response.text, response.status_code)

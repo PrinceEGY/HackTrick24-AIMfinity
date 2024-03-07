@@ -90,11 +90,11 @@ def solve_cv_hard(input: tuple) -> int:
     response = vision_model.generate_content([extracted_question, image], stream=True)
     response.resolve()
     print("Time taken to get response from model: ", time.time() - start)
+    print(extracted_question)
     print(response.text)
 
     ans = ""
     res = response.text
-    print(res)
     words_list = res.split()
     for word in words_list:
         word = (
@@ -268,7 +268,7 @@ def solve_problem_solving_hard(input: tuple) -> int:
 
 riddle_solvers = {
     "cv_easy": solve_cv_easy,
-    "cv_medium": solve_cv_medium,
+    # "cv_medium": solve_cv_medium,
     "cv_hard": solve_cv_hard,
     "ml_easy": solve_ml_easy,
     "ml_medium": solve_ml_medium,
